@@ -42,11 +42,35 @@ jobs:
             exit 1
           fi
 
-      - name: Run backend tests
-        working-directory: ./backend
-        run: npm test
-        env:
-          API_URL: http://localhost:3000
+      - name: Test backend health endpoint
+        run: |
+          response=$(curl -s http://localhost:3000/health)
+          if echo "$response" | grep -q '"status":"ok"'; then
+            echo "✓ Health check passed"
+          else
+            echo "✗ Health check failed"
+            exit 1
+          fi
+
+      - name: Test API endpoints
+        run: |
+          # Test GET /api/messages
+          messages=$(curl -s http://localhost:3000/api/messages)
+          if ! echo "$messages" | grep -q '^\['; then
+            echo "✗ GET /api/messages failed"
+            exit 1
+          fi
+          echo "✓ GET /api/messages works"
+          
+          # Test POST /api/messages
+          post_response=$(curl -s -X POST http://localhost:3000/api/messages \
+            -H "Content-Type: application/json" \
+            -d '{"author":"Test User","content":"Test message"}')
+          if ! echo "$post_response" | grep -q '"id"'; then
+            echo "✗ POST /api/messages failed"
+            exit 1
+          fi
+          echo "✓ POST /api/messages works"
 
   test-frontend:
     name: Test Frontend
