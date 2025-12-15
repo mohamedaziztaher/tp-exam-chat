@@ -291,12 +291,26 @@
 
     <script>
         // Configuration de l'URL de l'API
-        // Pour la production, définir window.API_URL dans un script séparé ou via variable d'environnement
-        const API_URL = window.API_URL || (
-            window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                ? 'http://localhost:3000' 
-                : 'https://your-backend-url.onrender.com' // À remplacer par l'URL Render de votre backend
-        );
+        // Détection automatique de l'environnement
+        function getApiUrl() {
+            // Si défini explicitement, utiliser cette valeur
+            if (window.API_URL) {
+                return window.API_URL;
+            }
+            
+            // En développement local
+            if (window.location.hostname === 'localhost' || 
+                window.location.hostname === '127.0.0.1' ||
+                window.location.hostname === '') {
+                return 'http://localhost:3000';
+            }
+            
+            // En production (Vercel) - utiliser le backend Render
+            return 'https://tp-exam-chat-77z1.onrender.com';
+        }
+        
+        const API_URL = getApiUrl();
+        console.log('API URL:', API_URL);
 
         let currentPseudo = '';
         let refreshInterval = null;
@@ -357,24 +371,37 @@
                     messageInput.value = '';
                     loadMessages();
                 } else {
-                    console.error('Erreur lors de l\'envoi du message');
+                    const errorText = await response.text();
+                    console.error('Erreur lors de l\'envoi du message:', response.status, errorText);
+                    alert('Erreur lors de l\'envoi du message. Vérifiez la connexion au serveur.');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
+                alert('Impossible de se connecter au serveur. Vérifiez que le backend est accessible.');
             }
         }
 
         // Charger les messages
         async function loadMessages() {
             try {
-                const response = await fetch(`${API_URL}/api/messages`);
+                const response = await fetch(`${API_URL}/api/messages`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
                 if (response.ok) {
                     const messages = await response.json();
                     displayMessages(messages);
                     lastRefreshTime = Date.now();
+                } else {
+                    console.error('Erreur HTTP:', response.status);
+                    // Ne pas afficher d'erreur si c'est juste un problème temporaire
                 }
             } catch (error) {
                 console.error('Erreur lors du chargement des messages:', error);
+                // Ne pas afficher d'erreur à chaque actualisation automatique
             }
         }
 

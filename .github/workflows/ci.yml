@@ -42,6 +42,12 @@ jobs:
             exit 1
           fi
 
+      - name: Run backend tests
+        working-directory: ./backend
+        run: npm test
+        env:
+          API_URL: http://localhost:3000
+
   test-frontend:
     name: Test Frontend
     runs-on: ubuntu-latest
