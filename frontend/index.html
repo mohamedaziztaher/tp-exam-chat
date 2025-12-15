@@ -306,11 +306,13 @@
             }
             
             // En production (Vercel) - utiliser le backend Render
+            // Backend URL: https://tp-exam-chat-77z1.onrender.com
             return 'https://tp-exam-chat-77z1.onrender.com';
         }
         
         const API_URL = getApiUrl();
         console.log('API URL:', API_URL);
+        console.log('Current origin:', window.location.origin);
 
         let currentPseudo = '';
         let refreshInterval = null;
