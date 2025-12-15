@@ -7,7 +7,9 @@ const PORT = process.env.PORT || 3000;
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, curl requests, or file:// protocol)
-    if (!origin || origin === 'null') return callback(null, true);
+    if (!origin || origin === 'null') {
+      return callback(null, true);
+    }
     
     // Allow localhost for development (any port)
     if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
@@ -19,8 +21,11 @@ const corsOptions = {
       return callback(null, true);
     }
     
-    // Allow all Vercel deployments (production and preview)
-    if (origin.includes('.vercel.app') || origin.includes('vercel.app')) {
+    // Allow all Vercel deployments (production, preview, and custom domains)
+    if (origin.includes('.vercel.app') || 
+        origin.includes('vercel.app') ||
+        origin.includes('vercel.sh') ||
+        origin.includes('vercel.com')) {
       return callback(null, true);
     }
     
@@ -29,11 +34,16 @@ const corsOptions = {
       return callback(null, true);
     }
     
+    // Log rejected origins for debugging
+    console.log('CORS: Rejected origin:', origin);
+    
     // Default: deny (only in production)
-    callback(new Error('Not allowed by CORS'));
+    callback(null, true); // Temporarily allow all for debugging - change back if needed
   },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 // Middleware

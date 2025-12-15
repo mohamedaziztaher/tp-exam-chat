@@ -306,8 +306,20 @@
             }
             
             // En production (Vercel) - utiliser le backend Render
-            // Backend URL: https://tp-exam-chat-77z1.onrender.com
-            return 'https://tp-exam-chat-77z1.onrender.com';
+            // IMPORTANT: Remplacez cette URL par votre URL Render réelle
+            // Exemple: https://tp-exam-chat-77z1.onrender.com
+            // Si vous voyez "your-backend-url.onrender.com" dans les erreurs,
+            // vous devez mettre à jour cette URL avec votre URL Render réelle
+            const renderBackendUrl = 'https://tp-exam-chat-77z1.onrender.com';
+            
+            // Vérifier que l'URL n'est pas un placeholder
+            if (renderBackendUrl.includes('your-backend-url')) {
+                console.error('ERREUR: L\'URL du backend est un placeholder. Mettez à jour la variable renderBackendUrl avec votre URL Render réelle.');
+                alert('Configuration manquante: URL du backend non définie. Veuillez mettre à jour le code avec votre URL Render.');
+                return null;
+            }
+            
+            return renderBackendUrl;
         }
         
         const API_URL = getApiUrl();
