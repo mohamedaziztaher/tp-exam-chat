@@ -6,11 +6,16 @@ const PORT = process.env.PORT || 3000;
 // CORS configuration - Allow requests from Vercel and localhost
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    // Allow requests with no origin (like mobile apps, curl requests, or file:// protocol)
+    if (!origin || origin === 'null') return callback(null, true);
     
-    // Allow localhost for development
+    // Allow localhost for development (any port)
     if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Allow file:// protocol for local development
+    if (origin.startsWith('file://')) {
       return callback(null, true);
     }
     
@@ -19,7 +24,12 @@ const corsOptions = {
       return callback(null, true);
     }
     
-    // Default: deny
+    // In development, be more permissive
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    // Default: deny (only in production)
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
